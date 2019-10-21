@@ -19,3 +19,7 @@ const Route = use('Route')
 Route.on('/').render('welcome')
 
 Route.post('users/create', 'UserController.create')
+
+Route.group(() => {
+  Route.post('users/create', 'UserController.create')
+}).prefix('api/v1')

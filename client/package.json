@@ -15,6 +15,7 @@
     "lodash": "^4.17.15",
     "popper.js": "^1.15.0",
     "serialize-error": "^5.0.0",
+    "vee-validate": "^3.0.11",
     "vue": "^2.6.10",
     "vue-router": "^3.0.3",
     "vuex": "^3.0.1"
@@ -35,7 +36,7 @@
     "trailingComma": "es5",
     "tabWidth": 2,
     "singleQuote": true,
-    "printWidth": 120,
+    "printWidth": 100,
     "bracketSpacing": true
   }
 }
