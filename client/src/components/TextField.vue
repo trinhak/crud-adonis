@@ -1,15 +1,22 @@
 <template>
-  <ValidationProvider :vid="vid" :name="name" :rules="rules"  v-slot="{ errors, touched }">
-    <div class="form-group px-4">
-      <label>{{ name }}</label>
+  <ValidationProvider
+    :vid="vid"
+    :name="name"
+    :rules="rules"
+    v-slot="{ errors, touched, changed, validated }"
+  >
+    <div class="form-group">
+      <label class="text-secondary" v-if="!hiddenLabel">{{ name }}</label>
       <input
         class="form-control rounded-form"
-        :placeholder="`Enter ${name.toLowerCase()} here...`"
+        :placeholder="$attrs.placeholder || `Enter ${name.toLowerCase()} here...`"
         :type="$attrs.type"
         v-model="innerValue"
       />
       <slot name="description"></slot>
-      <span class="form-text text-muted text-error mt-2" v-if="errors">{{ errors[0] }}</span>
+      <span class="form-text text-danger small" v-if="touched || (!changed && validated)">
+        {{ errors[0] }}
+      </span>
     </div>
   </ValidationProvider>
 </template>
@@ -23,6 +30,10 @@ export default {
     },
     value: {
       type: null,
+    },
+    hiddenLabel: {
+      type: Boolean,
+      default: false,
     },
     rules: {
       type: [Object, String],
@@ -57,13 +68,12 @@ export default {
 <style scoped>
 .rounded-form {
   border-radius: calc((1.5em + 0.75rem + 2px) / 2);
+  background-color: transparent !important;
 }
 .rounded-form:focus {
-  border: 1px #5ce0d9;
-  box-shadow: 0 0 0 0.1rem #5cdbe063;
-  transform: scale(1.1);
-}
-.text-error {
-  color: rgb(228, 48, 84) !important;
+  border: 1px #424242;
+  box-shadow: 0 0 0 0.1rem #42424263;
+  transform: scale(1.05);
+  background-color: transparent !important;
 }
 </style>

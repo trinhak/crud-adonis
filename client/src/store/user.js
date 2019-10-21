@@ -22,11 +22,7 @@ const actions = {
   async signUp({ state, commit }, params) {
     commit(REGISTER_ACCOUNT_REQUEST);
     try {
-      const res = await User.registerAccount({
-        username: 'lnminh',
-        password: 'Test@123',
-        email: 'lnminh58@gmail.com',
-      });
+      const res = await User.registerAccount(params);
       console.log(res);
     } catch (error) {
       commit(REGISTER_ACCOUNT_FAIL, { error: serializeError(error) });
