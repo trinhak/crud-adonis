@@ -22,35 +22,53 @@
     >
       <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">Register New Account</h5>
-            <button type="button" class="close" data-dismiss="modal">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <div class="modal-body text-left">
-            <ValidationObserver v-slot="{ passes }">
+          <ValidationObserver ref="observer" v-slot="{ validate }">
+            <div class="modal-header">
+              <h5 class="modal-title lead">Register New Account</h5>
+              <button type="button" class="close" data-dismiss="modal">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body text-left">
               <form>
-                <ValidationProvider
+                <TextField
                   name="Email"
+                  type="email"
                   rules="required|email"
-                  v-slot="{ errors, touched }"
+                  v-model="signUpForm.email"
                 >
-                  <div class="form-group px-4">
-                    <label>email</label>
-                    <input v-model="form.email" class="form-control rounded-form" type="email" />
-                    <span class="form-text text-muted text-error mt-2" v-if="touched">{{
-                      errors[0]
-                    }}</span>
-                  </div>
-                </ValidationProvider>
+                  <small slot="description" class="text-muted">
+                    We'll never share your email with anyone else.
+                  </small>
+                </TextField>
+                <TextField
+                  name="Username"
+                  type="text"
+                  rules="required"
+                  v-model="signUpForm.username"
+                />
+                <TextField
+                  name="Password"
+                  type="password"
+                  rules="required|min:6"
+                  vid="confirmation"
+                  v-model="signUpForm.password"
+                />
+                <TextField
+                  name="Confirm Password"
+                  type="password"
+                  rules="required|min:6|confirmed:confirmation"
+                  v-model="signUpForm.confirmPassword"
+                />
               </form>
-            </ValidationObserver>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-primary" @click="handleSignUp">Sign Up</button>
-          </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              <button type="button" class="btn btn-primary" @click="handleSignUp">
+                Sign Up
+              </button>
+            </div>
+          </ValidationObserver>
         </div>
       </div>
     </div>
@@ -58,17 +76,24 @@
 </template>
 
 <script>
+import TextField from '../components/TextField';
 export default {
+  components: {
+    TextField,
+  },
   data() {
     return {
-      form: {
+      signUpForm: {
         email: null,
+        username: null,
       },
     };
   },
   methods: {
-    handleSignUp() {
-      this.$store.dispatch('signUp');
+    async handleSignUp(validate) {
+      const valid = await this.$refs.observer.validate();
+      console.log(valid);
+      // this.$store.dispatch('signUp');
     },
   },
 };
