@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+  <title>Login</title>
+</head>
+<body> 
+  <div class="login-background">
+  <nav class="navbar navbar-light bg-light">
+    <a class="navbar-brand" href="/">
+      <img src="https://image.flaticon.com/icons/svg/25/25694.svg" width="30" height="30" class="d-inline-block align-top" alt="">
+      Home
+    </a>
+    </nav>
+    <div id="main">
+      <div class="card w-50">
+        @section('form')
+          <p class="font-weight-bold text-center mt-2 title">LOGIN</p>
+          <div class="card-body">
+              <form method="POST" action="/users/login">
+                {{ csrfField() }}
+                <div class="form-group">
+                  <label for="exampleInputEmail1">Email address</label>
+                  <input
+                    type="email"
+                    class="form-control"
+                    id="exampleInputEmail1"
+                    aria-describedby="emailHelp"
+                    placeholder="Enter email"
+                    name="email"
+                    value="{{ old('email', '') }}"
+                  >
+                </div>
+                <div class="form-group">
+                  <label for="exampleInputPassword1">Password</label>
+                  <input
+                    type="password"
+                    class="form-control"
+                    id="exampleInputPassword1"
+                    placeholder="Password"
+                    name="password"
+                  >
+                </div>
+                @if(getErrorFor('error'))
+                  <div>
+                    <span style="color: red">{{ getErrorFor('error') }}</span>
+                  </div>
+                @endif
+                <div>
+                  {{ elIf('<span style="color: red">$self</span>', getErrorFor('email'), hasErrorFor('email')) }}
+                  {{ elIf('<span style="color: red">$self</span>', getErrorFor('password'), hasErrorFor('password')) }}
+                </div>
+                <button type="submit" class="btn btn-primary">Login</button>
+              </form>
+          </div>
+        @endsection
+      </div>
+    </div>
+  </div>
+</body>
+<style>
+  .login-background {
+    background: linear-gradient(45deg, #4ac29a, #bdfff3);
+    height: 150vh;
+  }
+  #main {
+    height: 80vh;
+    display: flex;
+    flex-wrap: wrap;
+    -webkit-align-content: center;
+    align-content: center;
+    justify-content: center;
+  }
+  .title {
+    color: brown;
+    line-height: 1.5;
+    text-shadow: 3px 2px bisque;
+    font-size: 1.2em
+  }
+</style>
+</html>

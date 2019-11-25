@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>detail</title>
+  {{ style('style') }}
+</head>
+<body>
+  <section>
+    <div class="subtitle">
+      <form method="POST" action="/users/create">
+        {{ csrfField() }}
+        <div>
+          <input type="text" name="username"/>
+        </div>
+      @if(getErrorFor('username'))
+        <div>
+          <span>{{ getErrorFor('username') }}</span>
+        </div>
+      @endif
+      <div>
+        <button type="submit">Submit</button>
+      </div>
+      </form>
+    </div>
+  </section>
+</body>
+</html>

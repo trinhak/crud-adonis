@@ -6,7 +6,7 @@ const Server = use('Server')
 /*
 |--------------------------------------------------------------------------
 | Global Middleware
-|--------------------------------------------------------------------------
+|--------------------------------------------------------------------------serverMiddleware
 |
 | Global middleware are executed on each http request only when the routes
 | match.

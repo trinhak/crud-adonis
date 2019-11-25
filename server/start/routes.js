@@ -18,8 +18,14 @@ const Route = use('Route')
 
 Route.on('/').render('welcome')
 
-Route.post('users/create', 'UserController.create')
+Route.post('users/upload', 'UserController.upload')
+
+Route.get('home', 'HomeController.index').middleware('auth')
+Route.post('users/signout', 'UserController.signout').middleware('auth')
+Route.post('users/login', 'UserController.login')
 
 Route.group(() => {
-  Route.post('users/create', 'UserController.create')
-}).prefix('api/v1')
+  Route.get('signup', 'UserController.signup')
+  Route.get('login', 'UserController.index')
+  Route.post('create', 'UserController.create')
+}).prefix('users')
