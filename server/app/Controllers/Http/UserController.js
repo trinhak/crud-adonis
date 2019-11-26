@@ -12,26 +12,14 @@ class UserController {
   async create ({ auth, session, request, response }) {
     try {
       const data = request.only(['email', 'password', 'username'])
-      // let token = await auth.generate(user)
-      // Object.assign(user, token)
-      const rules = {
-        username: 'required',
-        email: 'required|email|unique:users,email',
-        password: 'required',
-      }
-      const validation = await validate(data, rules)
-      if (validation.fails()) {
-        session.withErrors(validation.messages()).flashAll();
-        return response.redirect('back');
-      }
+      console.log('data', data)
       await User.create(data)
-      const user = await User.findBy('email', email)
-      session.flash({ notification: 'Signup success!! wellcom...!'  })
-      let accessToken = await auth.generate(user)
-      return response.status(200).json({"user": user, "access_token": accessToken})
+      const user = await User.findBy('email', data.email)
+      console.log('user', user)
+      return response.status(200).json({"user": user})
     } catch (error) {
-      session.withErrors([{ field: 'error', message: 'Already exist' }]).flashAll()
-      return response.redirect('back')
+      console.log('error', error)
+      return response.status(400).json({"message": error})
     }
   };
   index ({ request, response , view }) {
@@ -47,17 +35,16 @@ class UserController {
       }
       const validation = await validate(request.all(), rules)
       if (validation.fails()) {
-        session.withErrors(validation.messages()).flashAll();
-        return response.redirect('back');
+        return reresponse.status(400).json({ "error": validation.messages() })
       }
       await auth.attempt(email, password);
       const user = await User.findBy('email', email)
       let accessToken = await auth.generate(user)
+      Object.assign(user, accessToken)
       return response.status(200).json({"user": user, "access_token": accessToken})
     } catch (error) {
       console.log('error', error);
-      session.withErrors([{ field: 'error', message: 'Password or email incorrect' }]).flashAll()
-      return response.redirect('back')
+      return response.status(400).json({ "error": error })
     }
   };
 
@@ -65,13 +52,18 @@ class UserController {
     return view.render('signup')
   };
 
-  async signout ({ auth, response }) {
+  async signout ({ request, auth, response }) {
     try {
-      console.log('method signout')
-      await auth.logout()
-      return response.redirect('/');
+      // const currentUser = await auth.getUser();
+      const { currentUser } = request.all();
+      const refreshToken = request.input(currentUser);
+      await auth
+          .authenticator('jwt')
+          .revokeTokens([refreshToken], true)
+      return response.status(200).json({"message": "logout success" })
     } catch (error) {
       console.log('error', error)
+      return response.status(400).json({ "error": error })
     }
   }
 }

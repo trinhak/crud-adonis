@@ -1,16 +1,35 @@
 import { get } from 'lodash';
-import serializeError from 'serialize-error';
 
 import User from '../api/user';
+import { AuthStorage } from '../services/storage';
+import router from '../router';
 
 import {
   REGISTER_ACCOUNT_REQUEST,
   REGISTER_ACCOUNT_SUCCESS,
   REGISTER_ACCOUNT_FAIL,
+  LOGIN_ACCOUNT_REQUEST,
+  LOGIN_ACCOUNT_SUCCESS,
+  LOGIN_ACCOUNT_FAIL,
+  LOGOUT_ACCOUNT_REQUEST,
+  LOGOUT_ACCOUNT_SUCCESS,
+  LOGOUT_ACCOUNT_FAIL,
 } from '../constants/mutationTypes';
 
 const state = {
   signUp: {
+    requesting: false,
+    status: '',
+    result: null,
+    error: null,
+  },
+  login: {
+    requesting: false,
+    status: '',
+    result: null,
+    error: null,
+  },
+  logout: {
     requesting: false,
     status: '',
     result: null,
@@ -24,8 +43,35 @@ const actions = {
     try {
       const res = await User.registerAccount(params);
       console.log(res);
+      commit(REGISTER_ACCOUNT_SUCCESS, res);
     } catch (error) {
-      commit(REGISTER_ACCOUNT_FAIL, { error: serializeError(error) });
+      commit(REGISTER_ACCOUNT_FAIL, { error: error });
+      console.log('error', error);
+    }
+  },
+  async login({ state, commit }, params) {
+    commit(LOGIN_ACCOUNT_REQUEST);
+    try {
+      const res = await User.loginAccount(params);
+      console.log(res)
+      await AuthStorage.setAuth(res.data.access_token.token);
+      commit(LOGIN_ACCOUNT_SUCCESS, res);
+    } catch (error) {
+      commit(LOGIN_ACCOUNT_FAIL, { error: error });
+      console.log('error', error);
+    }
+  },
+  async logout({ state, commit }, params) {
+    commit(LOGOUT_ACCOUNT_REQUEST);
+    try {
+      const currentUser = await AuthStorage.getAuth();
+      await User.logoutAccount({ currentUser });
+      await AuthStorage.deleteAuth();
+      router.push('/');
+      commit(LOGOUT_ACCOUNT_SUCCESS);
+    } catch (error) {
+      commit(LOGOUT_ACCOUNT_FAIL, { error: error });
+      console.log('error', error);
     }
   },
 };
@@ -44,6 +90,34 @@ const mutations = {
     state.signUp.requesting = false;
     state.signUp.status = 'error';
     state.signUp.error = payload;
+  },
+  [LOGIN_ACCOUNT_REQUEST](state) {
+    state.login.requesting = true;
+    state.login.status = '';
+  },
+  [LOGIN_ACCOUNT_SUCCESS](state, payload) {
+    state.login.requesting = false;
+    state.login.status = 'success';
+    state.login.result = payload;
+  },
+  [LOGIN_ACCOUNT_FAIL](state, payload) {
+    state.login.requesting = false;
+    state.login.status = 'error';
+    state.login.error = payload;
+  },
+  [LOGOUT_ACCOUNT_REQUEST](state) {
+    state.logout.requesting = true;
+    state.logout.status = '';
+  },
+  [LOGOUT_ACCOUNT_SUCCESS](state, payload) {
+    state.logout.requesting = false;
+    state.logout.status = 'success';
+    state.logout.result = payload;
+  },
+  [LOGOUT_ACCOUNT_FAIL](state, payload) {
+    state.logout.requesting = false;
+    state.logout.status = 'error';
+    state.logout.error = payload;
   },
 };
 
