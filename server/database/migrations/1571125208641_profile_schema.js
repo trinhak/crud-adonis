@@ -7,7 +7,8 @@ class ProfileSchema extends Schema {
   up() {
     this.create('profiles', table => {
       table.increments();
-      table.bigInteger('identify_card_number').notNullable().unique();
+      table.string('user_name', 200).nullable();
+      table.bigInteger('identify_card_number').nullable();
       table.string('phone', 50).nullable();
       table.boolean('gender').nullable();
       table.string('address', 200).nullable();

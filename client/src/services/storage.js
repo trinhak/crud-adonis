@@ -2,7 +2,7 @@ import { LOGIN_KEY } from '../constants/defaultValues';
 
 class AuthStorage {
   static getAuth() {
-    return localStorage.getItem(LOGIN_KEY);
+    return JSON.parse(localStorage.getItem(LOGIN_KEY));
   }
 
   static setAuth(data) {

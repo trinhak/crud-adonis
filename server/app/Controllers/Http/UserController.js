@@ -7,15 +7,19 @@ const Event = use('Event')
 const Helpers = use('Helpers')
 
 const User = use('App/Models/User');
+const Database = use('Database')
 
 class UserController {
   async create ({ auth, session, request, response }) {
     try {
       const data = request.only(['email', 'password', 'username'])
-      console.log('data', data)
       await User.create(data)
       const user = await User.findBy('email', data.email)
-      console.log('user', user)
+      const dataUser = {
+        user_name: user.username,
+        user_id: user.id
+      }
+      await Database.table('profiles').insert(dataUser)
       return response.status(200).json({"user": user})
     } catch (error) {
       console.log('error', error)
@@ -39,9 +43,15 @@ class UserController {
       }
       await auth.attempt(email, password);
       const user = await User.findBy('email', email)
+      const userProfile = await Database
+        .table('users')
+        .innerJoin('profiles', 'users.id', 'profiles.user_id')
+        .where('email', email)
+        .first()
+      console.log('userProfile', userProfile)
       let accessToken = await auth.generate(user)
       Object.assign(user, accessToken)
-      return response.status(200).json({"user": user, "access_token": accessToken})
+      return response.status(200).json({"user": userProfile, "access_token": accessToken})
     } catch (error) {
       console.log('error', error);
       return response.status(400).json({ "error": error })
@@ -55,8 +65,9 @@ class UserController {
   async signout ({ request, auth, response }) {
     try {
       // const currentUser = await auth.getUser();
-      const { currentUser } = request.all();
-      const refreshToken = request.input(currentUser);
+      const { token } = request.all();
+      const refreshToken = request.input(token);
+      console.log('token', token)
       await auth
           .authenticator('jwt')
           .revokeTokens([refreshToken], true)

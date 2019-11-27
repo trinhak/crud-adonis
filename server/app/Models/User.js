@@ -42,6 +42,10 @@ class User extends Model {
   Vihicles () {
     return this.hasMany('App/Models/Vihicle')
   }
+
+  post () {
+    return this.hasMany('App/Models/Post')
+  }
 }
 
 module.exports = User

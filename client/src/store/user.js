@@ -54,8 +54,13 @@ const actions = {
     try {
       const res = await User.loginAccount(params);
       console.log(res)
-      await AuthStorage.setAuth(res.data.access_token.token);
-      commit(LOGIN_ACCOUNT_SUCCESS, res);
+      const userInfor = get(res, 'data.user');
+      const data = {
+        ...userInfor,
+        access_token: get(res, 'data.access_token.token'),
+      };
+      await AuthStorage.setAuth(JSON.stringify(data));
+      commit(LOGIN_ACCOUNT_SUCCESS, data);
     } catch (error) {
       commit(LOGIN_ACCOUNT_FAIL, { error: error });
       console.log('error', error);
@@ -65,7 +70,8 @@ const actions = {
     commit(LOGOUT_ACCOUNT_REQUEST);
     try {
       const currentUser = await AuthStorage.getAuth();
-      await User.logoutAccount({ currentUser });
+      const token = get(currentUser, 'access_token');
+      await User.logoutAccount({ token });
       await AuthStorage.deleteAuth();
       router.push('/');
       commit(LOGOUT_ACCOUNT_SUCCESS);

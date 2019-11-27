@@ -17,42 +17,42 @@
       <router-view />
     </div>
     <div v-else>
-      <v-toolbar color="#BBDEFB" class="justify-center">
-        <v-toolbar-title class="wellcom">Wellcome to the world of music</v-toolbar-title>
+      <v-app-bar app clipped-left color="#BBDEFB">
+        <v-toolbar-title class="wellcom font-italic font-weight-bold"
+          >Wellcome to the world of music</v-toolbar-title
+        >
         <v-spacer></v-spacer>
         <v-toolbar-items>
           <v-btn text @click="logout" class="title-text" color="#800000">
             Logout
           </v-btn>
         </v-toolbar-items>
-      </v-toolbar>
+      </v-app-bar>
 
-      <v-navigation-drawer color="side-bar" app class="routes-container">
-        <v-list-item>
-          <v-list-item-avatar>
-            <v-img src="https://randomuser.me/api/portraits/men/78.jpg"></v-img>
-          </v-list-item-avatar>
-
-          <v-list-item-content>
-            <v-list-item-title>John Leider</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
+      <v-navigation-drawer color="side-bar" app class="routes-container" clipped>
+        <div class="mt-3">
+          <v-avatar width="100" height="100">
+            <img src="https://cdn.vuetifyjs.com/images/john.jpg" alt="John" />
+          </v-avatar>
+          <div>
+            <p class="ma-0">{{ inforUser.username }}</p>
+            <p>{{ inforUser.email }}</p>
+          </div>
+        </div>
 
         <v-divider></v-divider>
 
-        <v-list dense>
-          <v-list-item v-for="item in drawerItems" :key="item.name" link>
-            <v-list-item-icon>
-              <v-icon>{{ item.icon }}</v-icon>
-            </v-list-item-icon>
-
-            <v-list-item-content>
-              <v-list-item-title>{{ item.name }}</v-list-item-title>
-            </v-list-item-content>
+        <v-list>
+          <v-list-item v-for="item in drawerItems" :key="item.name" :to="item.path">
+            <v-icon>{{ item.icon }}</v-icon>
+            <v-list-item-content class="ma-0 ml-5">{{ item.name }}</v-list-item-content>
           </v-list-item>
         </v-list>
       </v-navigation-drawer>
-      <router-view />
+
+      <v-content>
+        <router-view />
+      </v-content>
     </div>
     <div class="text-center">
       <!-- dialog for login -->
@@ -232,6 +232,9 @@ export default {
       requestingLogin: state => get(state, 'user.signUp.requesting', false),
       status: state => get(state, 'user.signUp.status'),
     }),
+    inforUser() {
+      return AuthStorage.getAuth();
+    },
   },
   methods: {
     signUp() {
@@ -294,16 +297,22 @@ export default {
 }
 .title-text {
   color: maroon;
-  text-align: center;
   font-style: oblique;
+  font-size: 1em;
+  text-shadow: 2px 1px burlywood;
 }
 .wellcom {
   font-style: oblique;
   font-size: 2em;
   color: maroon;
+  text-shadow: 2px 1px burlywood;
 }
 .routes-container {
   height: 100%;
   background: linear-gradient(-30deg, #006064, #bbdefb) !important;
+}
+.d {
+  align-content: center;
+  justify-content: center;
 }
 </style>
