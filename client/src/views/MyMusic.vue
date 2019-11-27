@@ -29,7 +29,9 @@
                     label="image"
                     @change="onFileChange"
                     v-model="path"
+                    class="ml-4"
                   ></v-file-input>
+                  <v-spacer></v-spacer>
                   <v-select :items="items" filled label="Filled style"></v-select>
                 </div>
               </div>
