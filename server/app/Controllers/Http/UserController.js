@@ -1,10 +1,6 @@
 'use strict'
 const { validate } = use('Validator')
-const Encryption = use('Encryption')
-const Hash = use('Hash')
-const Event = use('Event')
 /** @type {import('@adonisjs/ignitor/src/Helpers')} */
-const Helpers = use('Helpers')
 
 const User = use('App/Models/User');
 const Database = use('Database')
@@ -62,15 +58,8 @@ class UserController {
     return view.render('signup')
   };
 
-  async signout ({ request, auth, response }) {
+  async signout ({ response }) {
     try {
-      // const currentUser = await auth.getUser();
-      const { token } = request.all();
-      const refreshToken = request.input(token);
-      console.log('token', token)
-      await auth
-          .authenticator('jwt')
-          .revokeTokens([refreshToken], true)
       return response.status(200).json({"message": "logout success" })
     } catch (error) {
       console.log('error', error)

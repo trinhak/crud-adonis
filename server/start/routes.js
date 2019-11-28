@@ -21,10 +21,16 @@ Route.on('/').render('welcome')
 Route.post('users/upload', 'UserController.upload')
 
 Route.get('home', 'HomeController.index').middleware('auth')
-Route.post('users/signout', 'UserController.signout')
-Route.post('users/login', 'UserController.login')
+Route.post('upload', 'UploadController.upload')
 
 Route.group(() => {
   Route.get('signup', 'UserController.signup')
   Route.post('create', 'UserController.create')
+  Route.post('login', 'UserController.login')
+  Route.post('signout', 'UserController.signout').middleware(['auth'])
 }).prefix('users')
+
+Route.group(() => {
+  Route.get('categories', 'PostController.getCategories')
+  Route.get('create', 'PostController.create')
+}).prefix('posts')

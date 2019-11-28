@@ -9,11 +9,17 @@
     </v-layout>
     <v-layout justify-center>
       <v-flex>
-        <v-card class="mx-auto" max-width="100%" outlined>
+        <v-card class="mx-auto" max-width="60%" outlined>
           <v-list-item three-line>
             <v-list-item-content>
               <v-list-item-title class="mb-1">Add a music</v-list-item-title>
               <div>
+                <v-text-field
+                  v-model="name"
+                  :rules="emailRules"
+                  label="Post's name"
+                  required
+                ></v-text-field>
                 <v-textarea
                   name="input-7-1"
                   label="Description"
@@ -29,10 +35,17 @@
                     label="image"
                     @change="onFileChange"
                     v-model="path"
-                    class="ml-4"
+                    class="ml-3"
                   ></v-file-input>
                   <v-spacer></v-spacer>
-                  <v-select :items="items" filled label="Filled style"></v-select>
+                  <v-select
+                    :items="categories"
+                    filled
+                    item-text="name"
+                    item-value="id"
+                    v-model="selectCategory"
+                    label="Select category"
+                  ></v-select>
                 </div>
               </div>
               <v-img
@@ -48,7 +61,7 @@
 
           <v-card-actions>
             <v-btn text color="red" :disabled="isDisable" @click="handleCancel">Cancel</v-btn>
-            <v-btn text color="green" :disabled="isDisable">Post</v-btn>
+            <v-btn text color="green" :disabled="isDisable" @click="handleSave">Post</v-btn>
           </v-card-actions>
         </v-card>
       </v-flex>
@@ -56,16 +69,28 @@
   </v-flex>
 </template>
 <script>
+import { mapState } from 'vuex';
+import { get } from 'lodash';
+
+import { AuthStorage } from '../services/storage';
+
 export default {
   data() {
     return {
       txtDescription: '',
       imageLocal: null,
       path: null,
-      items: ['Foo', 'Bar', 'Fizz', 'Buzz'],
+      selectCategory: {},
+      name: null,
     };
   },
+  mounted() {
+    this.$store.dispatch('getCategories');
+  },
   computed: {
+    ...mapState({
+      categories: state => get(state, 'post.categories.result', []),
+    }),
     isDisable() {
       return !(!!this.txtDescription && !!this.imageLocal);
     },
@@ -91,6 +116,17 @@ export default {
       this.imageLocal = null;
       this.path = null;
     },
+    handleSave() {
+      console.log('selectCategory', this.selectCategory);
+      const currentUser = AuthStorage.getAuth();
+      this.$store.dispatch('createPost', {
+        name: this.name,
+        description: this.txtDescription,
+        image: this.path,
+        userId: currentUser.id,
+        categoryId: this.selectCategory.id,
+      });
+    },
   },
 };
 </script>
@@ -99,6 +135,7 @@ export default {
   align-content: center;
   justify-content: center;
   flex-direction: row;
-  flex: 1
+  flex: 1;
+  overflow: auto;
 }
 </style>

@@ -2,6 +2,7 @@ import { get } from 'lodash';
 
 import User from '../api/user';
 import { AuthStorage } from '../services/storage';
+import http from '../services/http';
 import router from '../router';
 
 import {
@@ -53,12 +54,14 @@ const actions = {
     commit(LOGIN_ACCOUNT_REQUEST);
     try {
       const res = await User.loginAccount(params);
-      console.log(res)
+      console.log(res);
       const userInfor = get(res, 'data.user');
       const data = {
         ...userInfor,
         access_token: get(res, 'data.access_token.token'),
       };
+      const token = `${get(res, 'data.access_token.type')} ${get(res, 'data.access_token.token')}`;
+      await http.setAuthorizationHeader(token);
       await AuthStorage.setAuth(JSON.stringify(data));
       commit(LOGIN_ACCOUNT_SUCCESS, data);
     } catch (error) {
@@ -69,8 +72,8 @@ const actions = {
   async logout({ state, commit }, params) {
     commit(LOGOUT_ACCOUNT_REQUEST);
     try {
-      const currentUser = await AuthStorage.getAuth();
-      const token = get(currentUser, 'access_token');
+      const current = await AuthStorage.getAuth();
+      const token = current.access_token;
       await User.logoutAccount({ token });
       await AuthStorage.deleteAuth();
       router.push('/');

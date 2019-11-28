@@ -12,6 +12,9 @@ axios.interceptors.response.use(
 );
 
 const http = {
+  setAuthorizationHeader(accessToken) {
+    axios.defaults.headers.Authorization = accessToken;
+  },
   request(config = {}) {
     return axios.request(config);
   },
