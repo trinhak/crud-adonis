@@ -5,6 +5,7 @@ const Cloudinary = use('App/Services/Cloudinary')
 class UploadController {
   async upload ({ request, response }) {
     try {
+      const { image } = request.all();
       if(request.file('image')){
         let cloudinary_response = await Cloudinary.upload(request.file('image'))
 

@@ -32,5 +32,7 @@ Route.group(() => {
 
 Route.group(() => {
   Route.get('categories', 'PostController.getCategories')
-  Route.get('create', 'PostController.create')
+  Route.post('create', 'PostController.create')
+  Route.get('get-post-by-userId', 'PostController.getPostByUserId')
 }).prefix('posts')
+  .middleware(['auth'])

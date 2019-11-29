@@ -1,5 +1,6 @@
 <template>
   <v-flex class="px-5 py-5">
+    <v-alert v-if="alertType !== ''" :type="alertType">{{ messageAlert }}!</v-alert>
     <v-layout justify-center>
       <v-flex>
         <span class="display-1 blue-grey--text font-weight-medium font-italic">
@@ -14,12 +15,7 @@
             <v-list-item-content>
               <v-list-item-title class="mb-1">Add a music</v-list-item-title>
               <div>
-                <v-text-field
-                  v-model="name"
-                  :rules="emailRules"
-                  label="Post's name"
-                  required
-                ></v-text-field>
+                <v-text-field v-model="name" label="Post's name" required></v-text-field>
                 <v-textarea
                   name="input-7-1"
                   label="Description"
@@ -60,8 +56,22 @@
           </v-list-item>
 
           <v-card-actions>
-            <v-btn text color="red" :disabled="isDisable" @click="handleCancel">Cancel</v-btn>
-            <v-btn text color="green" :disabled="isDisable" @click="handleSave">Post</v-btn>
+            <v-btn
+              text
+              color="red"
+              :disabled="isDisable"
+              @click="handleCancel"
+              :loading="requestingCreatePost"
+              >Cancel</v-btn
+            >
+            <v-btn
+              text
+              color="green"
+              :disabled="isDisable"
+              @click="handleSave"
+              :loading="requestingCreatePost"
+              >Post</v-btn
+            >
           </v-card-actions>
         </v-card>
       </v-flex>
@@ -82,6 +92,8 @@ export default {
       path: null,
       selectCategory: {},
       name: null,
+      messageAlert: '',
+      alertType: '',
     };
   },
   mounted() {
@@ -90,6 +102,7 @@ export default {
   computed: {
     ...mapState({
       categories: state => get(state, 'post.categories.result', []),
+      requestingCreatePost: state => get(state, 'post.createPost.requesting', false),
     }),
     isDisable() {
       return !(!!this.txtDescription && !!this.imageLocal);
@@ -111,21 +124,42 @@ export default {
         this.imageLocal = null;
       }
     },
-    handleCancel() {
+    resetData() {
       this.txtDescription = '';
       this.imageLocal = null;
       this.path = null;
+      this.name = null;
+      this.selectCategory = {};
+    },
+    handleCancel() {
+      this.resetData();
     },
     handleSave() {
       console.log('selectCategory', this.selectCategory);
       const currentUser = AuthStorage.getAuth();
-      this.$store.dispatch('createPost', {
-        name: this.name,
-        description: this.txtDescription,
-        image: this.path,
-        userId: currentUser.id,
-        categoryId: this.selectCategory.id,
-      });
+      this.$store
+        .dispatch('createPost', {
+          name: this.name,
+          description: this.txtDescription,
+          image: this.path,
+          userId: currentUser.id,
+          categoryId: this.selectCategory.id,
+        })
+        .then(() => {
+          const status = get(this.$store, 'state.post.createPost.status');
+          this.alertType = status;
+          if (status === 'success') {
+            setTimeout(() => {
+              this.resetData();
+            }, 1000);
+            this.messageAlert = 'Create success!!!';
+          }
+          this.messageAlert = `Create ${status}!.. Please! check again`;
+          setTimeout(() => {
+            this.alertType = '';
+            this.messageAlert = '';
+          }, 5000);
+        });
     },
   },
 };

@@ -6,6 +6,7 @@ import Home from './views/Home.vue';
 import Login from './views/Login.vue';
 import UnAuthor from './views/UnAuthor.vue';
 import MyMucsic from './views/MyMusic.vue';
+import http from './services/http';
 
 import { AuthStorage } from './services/storage';
 
@@ -42,6 +43,8 @@ router.beforeEach((to, from, next) => {
   const onlyWhenLoggedOut = to.matched.some(record => record.meta.onlyWhenLoggedOut);
   const currentUser = AuthStorage.getAuth();
   console.log('currentUser', currentUser)
+  const token = `${get(currentUser, 'type_token')} ${get(currentUser, 'access_token')}`;
+  http.setAuthorizationHeader(token);
   if (!isPublic && !currentUser) {
     return next({
       path: '/',

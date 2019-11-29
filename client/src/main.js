@@ -18,6 +18,7 @@ mixins.forEach(mixin => Vue.mixin(mixin));
 Vue.component('ValidationProvider', ValidationProvider);
 Vue.component('ValidationObserver', ValidationObserver);
 
+
 new Vue({
   router,
   store,

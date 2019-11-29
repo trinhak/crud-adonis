@@ -16,7 +16,6 @@ module.exports = {
     return new Promise(async (resolve, reject) => {
 
       try{
-
         let response = await cloudinary.uploader.upload(file.tmpPath, { folder: 'image'})
 
         resolve({status: true, url: response.secure_url })

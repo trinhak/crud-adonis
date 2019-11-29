@@ -59,6 +59,7 @@ const actions = {
       const data = {
         ...userInfor,
         access_token: get(res, 'data.access_token.token'),
+        type_token: get(res, 'data.access_token.type'),
       };
       const token = `${get(res, 'data.access_token.type')} ${get(res, 'data.access_token.token')}`;
       await http.setAuthorizationHeader(token);
@@ -74,7 +75,7 @@ const actions = {
     try {
       const current = await AuthStorage.getAuth();
       const token = current.access_token;
-      await User.logoutAccount({ token });
+      await User.logoutAccount();
       await AuthStorage.deleteAuth();
       router.push('/');
       commit(LOGOUT_ACCOUNT_SUCCESS);
