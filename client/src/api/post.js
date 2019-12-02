@@ -7,4 +7,7 @@ export default class Post {
   static createPost(body) {
     return http.post('/posts/create', body);
   }
+  static getPostByUserId(params) {
+    return http.get(`/posts/get-post-by-userId?id=${params.id}&page=${params.page}`);
+  }
 }

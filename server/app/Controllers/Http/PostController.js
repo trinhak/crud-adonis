@@ -15,7 +15,6 @@ class PostController {
   async create({ request, response }) {
     try {
       const { name, description, image, userId, categoryId } = request.all();
-      console.log('description', description)
       const dataPost = {
         name_post: name,
         description_post: description,
@@ -23,7 +22,6 @@ class PostController {
         user_id: userId,
         category_id: categoryId
       };
-      console.log('vo day')
       await Database.table('posts').insert(dataPost)
       return response.status(200).json({"data": dataPost})
     } catch (error) {
@@ -34,8 +32,11 @@ class PostController {
 
   async getPostByUserId({ request, response }) {
     try {
-      const { userId, currentPage } = request.all();
-      const data = await Database.table('posts').where('user_id', userId).paginate(currentPage, 10)
+      // const { id: userId } = request.get();
+      const { page, id } = request.get();
+      console.log('vo day all', request.get())
+      const data = await Database.table('posts').where('user_id', id).paginate(page, 2)
+      console.log('data', data.data)
       return response.status(200).json({"data": data});
     } catch (error) {
       console.log('error', error);

@@ -4,6 +4,10 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import Vue from 'vue';
 import { ValidationProvider, ValidationObserver } from 'vee-validate/dist/vee-validate.full';
 import vuetify from './plugins/vuetify';
+import infiniteScroll from 'vue-infinite-scroll';
+
+// import InfiniteScroll from 'v-infinite-scroll';
+// import 'v-infinite-scroll/dist/v-infinite-scroll.css'
 
 import App from './App.vue';
 import router from './router';
@@ -17,7 +21,7 @@ mixins.forEach(mixin => Vue.mixin(mixin));
 
 Vue.component('ValidationProvider', ValidationProvider);
 Vue.component('ValidationObserver', ValidationObserver);
-
+Vue.use(infiniteScroll);
 
 new Vue({
   router,
