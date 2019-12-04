@@ -208,8 +208,8 @@ export default {
           path: '/home',
         },
         {
-          name: 'Favorites',
-          icon: 'mdi-heart',
+          name: 'Book Mark',
+          icon: 'mdi-bookmark-multiple',
           path: '/favorite',
         },
         {

@@ -3,6 +3,7 @@ const { validate } = use('Validator')
 /** @type {import('@adonisjs/ignitor/src/Helpers')} */
 
 const User = use('App/Models/User');
+const Profile = use('App/Models/Profile');
 const Database = use('Database')
 
 class UserController {
@@ -15,7 +16,7 @@ class UserController {
         user_name: user.username,
         user_id: user.id
       }
-      await Database.table('profiles').insert(dataUser)
+      await Profile.create(dataUser)
       return response.status(200).json({"user": user})
     } catch (error) {
       console.log('error', error)

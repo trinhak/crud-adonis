@@ -31,6 +31,11 @@ Route.group(() => {
 }).prefix('users')
 
 Route.group(() => {
+  Route.post('create', 'FavoriteController.create')
+}).prefix('favorites')
+  .middleware(['auth'])
+
+Route.group(() => {
   Route.get('categories', 'PostController.getCategories')
   Route.post('create', 'PostController.create')
   Route.get('get-post-by-userId/:id?/:page?', 'PostController.getPostByUserId')

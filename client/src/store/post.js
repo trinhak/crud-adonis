@@ -60,7 +60,6 @@ const actions = {
         ...params,
         image: get(image, 'data.url'),
       };
-      console.log('paramPost', paramPost);
       const res = await Post.createPost(paramPost);
       commit(CREATE_POST_SUCCESS, res.data);
     } catch (error) {
@@ -71,7 +70,6 @@ const actions = {
   async getPostByUserId({ state, commit }, params) {
     commit(GET_POST_BY_USER_ID_REQUEST);
     try {
-      console.log('params', params)
       const res = await Post.getPostByUserId(params);
       commit(GET_POST_BY_USER_ID_SUCCESS, res.data);
     } catch (error) {
@@ -115,7 +113,6 @@ const mutations = {
     state.postByUserId.status = '';
   },
   [GET_POST_BY_USER_ID_SUCCESS](state, payload) {
-    console.log('payload', payload.data.data);
     state.postByUserId.requesting = false;
     state.postByUserId.status = 'success';
     state.postByUserId.result =

@@ -43,8 +43,11 @@ class User extends Model {
     return this.hasMany('App/Models/Vihicle')
   }
 
-  post () {
+  posts () {
     return this.hasMany('App/Models/Post')
+  }
+  favorites () {
+    return this.belongsToMany('App/Models/Favorite')
   }
 }
 

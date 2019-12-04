@@ -1,6 +1,8 @@
 'use strict'
 
 const Database = use('Database')
+const Post = use('App/Models/Post')
+const User = use('App/Models/User');
 
 class PostController {
   async getCategories({ response }) {
@@ -22,7 +24,7 @@ class PostController {
         user_id: userId,
         category_id: categoryId
       };
-      await Database.table('posts').insert(dataPost)
+      await Post.create(dataPost)
       return response.status(200).json({"data": dataPost})
     } catch (error) {
       console.log('error', error)
@@ -32,12 +34,18 @@ class PostController {
 
   async getPostByUserId({ request, response }) {
     try {
-      // const { id: userId } = request.get();
       const { page, id } = request.get();
-      console.log('vo day all', request.get())
-      const data = await Database.table('posts').where('user_id', id).paginate(page, 2)
-      console.log('data', data.data)
-      return response.status(200).json({"data": data});
+      const posts = await Post
+        .query()
+        .with('user', (builder) => {
+          builder.setHidden(['password'])
+          .where('id', id)
+          .with('profile')
+        })
+        .with('favorites')
+        .paginate(page,2)
+      console.log('user', posts.toJSON())
+      return response.status(200).json({"data": posts});
     } catch (error) {
       console.log('error', error);
       return response.status(400).json({"message": error})

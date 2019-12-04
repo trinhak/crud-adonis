@@ -76,25 +76,29 @@
         </v-card>
       </v-flex>
     </v-layout>
-    <v-layout justify-center>
+    <v-layout wrap>
       <div
         v-infinite-scroll="loadMore"
         infinite-scroll-disabled="requestigGetPost"
-        infinite-scroll-distance="2"
+        infinite-scroll-distance="10"
+        class="row"
       >
         <v-flex v-for="(post, index) in posts" :key="index">
-          <v-card>
-            <div class="d-flex flex-no-wrap justify-space-between">
-              <div>
-                <v-card-title class="headline" v-text="post.name_post"></v-card-title>
+          <v-card class="mx-auto ma-2" max-width="400" height="400">
+            <v-img class="white--text align-end" height="200px" :src="post.image_url">
+              <v-card-title class="shadow" v-text="post.name_post"></v-card-title>
+            </v-img>
+            <v-card-subtitle class="desciption" v-text="post.description_post"></v-card-subtitle>
 
-                <v-card-subtitle v-text="post.description_post"></v-card-subtitle>
-              </div>
+            <v-card-actions>
+              <v-btn color="orange" text>
+                Edit
+              </v-btn>
 
-              <v-avatar class="ma-3" size="125" tile>
-                <v-img :src="post.image_url"></v-img>
-              </v-avatar>
-            </div>
+              <v-btn color="red" text>
+                Delete
+              </v-btn>
+            </v-card-actions>
           </v-card>
         </v-flex>
       </div>
@@ -103,7 +107,7 @@
 </template>
 <script>
 import { mapState } from 'vuex';
-import { get } from 'lodash';
+import { get, isEqual } from 'lodash';
 
 import { AuthStorage } from '../services/storage';
 export default {
@@ -112,7 +116,7 @@ export default {
       txtDescription: '',
       imageLocal: null,
       path: null,
-      selectCategory: {},
+      selectCategory: null,
       name: null,
       messageAlert: '',
       alertType: '',
@@ -136,13 +140,26 @@ export default {
       requestingCreatePost: state => get(state, 'post.createPost.requesting', false),
       requestigGetPost: state => get(state, 'post.postByUserId.requesting'),
       posts: state => get(state, 'post.postByUserId.result.posts', []),
+      statePostByUser: state => get(state, 'post.postByUserId'),
+      createPost: state => get(state, 'post.createPost.result'),
     }),
     isDisable() {
-      return !(!!this.txtDescription && !!this.imageLocal);
+      return !(!!this.txtDescription && !!this.imageLocal && !!this.name && !!this.selectCategory);
     },
     userInfor() {
       // eslint-disable-next-line vue/no-side-effects-in-computed-properties
       return AuthStorage.getAuth();
+    },
+  },
+  watch: {
+    createPost(newValue, oldValue) {
+      if (!isEqual(newValue, oldValue)) {
+        const params = {
+          id: this.userInfor.id,
+          page: this.page,
+        };
+        this.$store.dispatch('getPostByUserId', params);
+      }
     },
   },
   methods: {
@@ -178,7 +195,7 @@ export default {
           name: this.name,
           description: this.txtDescription,
           image: this.path,
-          userId: this.currentUser.id,
+          userId: this.userInfor.id,
           categoryId: this.selectCategory,
         })
         .then(() => {
@@ -189,8 +206,9 @@ export default {
               this.resetData();
             }, 1000);
             this.messageAlert = 'Create success!!!';
+          } else {
+            this.messageAlert = `Create ${status}!.. Please! check again`;
           }
-          this.messageAlert = `Create ${status}!.. Please! check again`;
           setTimeout(() => {
             this.alertType = '';
             this.messageAlert = '';
@@ -198,29 +216,26 @@ export default {
         });
     },
     loadMore() {
+      if (get(this.statePostByUser, 'result.page') >= get(this.statePostByUser, 'result.lastPage'))
+        return;
       const params = {
         id: this.userInfor.id,
-        page: this.page,
+        page: get(this.statePostByUser, 'result.page') + 1,
       };
-      if (this.page > get(this.$store, 'state.post.postByUserId.result.lastPage', 1)) {
-        console.log('vo day')
-        return;
-      };
-      console.log('page local', this.page)
-      // if (this.requestigGetPost) return;
-      this.$store.dispatch('getPostByUserId', params).then(() => {
-        this.page = this.page + 1;
-      });
+      if (this.requestigGetPost) return;
+      this.$store.dispatch('getPostByUserId', params);
     },
   },
 };
 </script>
 <style>
-.row {
-  align-content: center;
-  justify-content: center;
-  flex-direction: row;
-  flex: 1;
-  overflow: auto;
+.shadow {
+  text-shadow: 3px 3px 5px black !important;
+}
+.desciption {
+  color: darkslategrey;
+  font-style: oblique;
+  font-size: 1em;
+  height: 150px;
 }
 </style>
