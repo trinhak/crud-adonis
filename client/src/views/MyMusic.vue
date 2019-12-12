@@ -95,7 +95,7 @@
                 Edit
               </v-btn>
 
-              <v-btn color="red" text>
+              <v-btn color="red" text @click="handleDeletePost(post.id)">
                 Delete
               </v-btn>
             </v-card-actions>
@@ -224,6 +224,14 @@ export default {
       };
       if (this.requestigGetPost) return;
       this.$store.dispatch('getPostByUserId', params);
+    },
+    handleDeletePost(postId) {
+      console.log('postId', postId)
+      const params = {
+        postId,
+        userId: this.userInfor.id,
+      };
+      this.$store.dispatch('deletePost', params);
     },
   },
 };

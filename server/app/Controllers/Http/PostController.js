@@ -39,15 +39,48 @@ class PostController {
         .query()
         .with('user', (builder) => {
           builder.setHidden(['password'])
-          .where('id', id)
           .with('profile')
         })
-        .with('favorites')
-        .paginate(page,2)
-      console.log('user', posts.toJSON())
+        .where('user_id', id)
+        .where('isDelete', 0)
+        .paginate(page, 10)
       return response.status(200).json({"data": posts});
     } catch (error) {
       console.log('error', error);
+      return response.status(400).json({"message": error})
+    }
+  }
+
+  async getAllPost({ request, response }) {
+    try {
+      const { page } = request.get();
+      const posts = await Post
+        .query()
+        .with('user', (builder) => {
+          builder.setHidden(['password'])
+          .with('profile')
+        })
+        .with('favorited')
+        .withCount('favorited')
+        .where('isDelete', 0)
+        .orderBy('created_at', 'DESC')
+        .paginate(page, 10)
+      return response.status(200).json({"data": posts});
+    } catch (error) {
+      console.log('error', error)
+      return response.status(400).json({"message": error})
+    }
+  }
+  async deletePost({ request, response }) {
+    try {
+      const { id, userId } = request.get();
+      const user = await User.find(userId)
+      console.log('postId', id)
+      console.log('userId', userId)
+      await user.posts().where('id', id).update({ isDelete: 1 })
+      return response.status(200).json({"message": 'sucess'})
+    } catch (error) {
+      console.log('error', error)
       return response.status(400).json({"message": error})
     }
   }

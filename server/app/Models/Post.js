@@ -10,8 +10,8 @@ class Post extends Model {
   category () {
     return this.belongsTo('App/Models/Category')
   }
-  favorites () {
-    return this.belongsToMany('App/Models/Favorite')
+  favorited () {
+    return this.belongsToMany('App/Models/User').pivotTable('favorites')
   }
 }
 

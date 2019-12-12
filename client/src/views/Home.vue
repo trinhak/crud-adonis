@@ -17,11 +17,11 @@
       <div
         v-infinite-scroll="loadMore"
         infinite-scroll-disabled="requestigGetPost"
-        infinite-scroll-distance="10"
+        infinite-scroll-distance="500"
         class="row"
       >
-        <v-flex v-for="(post, index) in posts" :key="index">
-          <v-card class="mx-auto ma-2" max-width="400" height="450">
+        <v-flex xs12 md4 v-for="(post, index) in posts || []" :key="index">
+          <v-card class="mx-auto ma-5 ml-5 mr-5">
             <v-list-item>
               <v-avatar width="50" height="50">
                 <img
@@ -53,9 +53,12 @@
               <v-spacer></v-spacer>
               <v-btn icon color="red" @click="handleFavorite(post.id)">
                 <v-icon>{{
-                  favorites.includes(post.id) ? 'mdi-heart' : 'mdi-heart-outline'
+                  !!post.favorited.find(item => item.id === userInfor.id)
+                    ? 'mdi-heart'
+                    : 'mdi-heart-outline'
                 }}</v-icon>
               </v-btn>
+              <span>{{ post.__meta__.favorited_count }}</span>
             </v-card-actions>
           </v-card>
         </v-flex>
@@ -65,7 +68,7 @@
 </template>
 <script>
 import { mapState } from 'vuex';
-import { get, isEqual } from 'lodash';
+import { get, isEqual, uniqBy } from 'lodash';
 
 import { AuthStorage } from '../services/storage';
 
@@ -79,16 +82,15 @@ export default {
   mounted() {
     const currentUser = AuthStorage.getAuth();
     const params = {
-      id: currentUser.id,
       page: 1,
     };
-    this.$store.dispatch('getPostByUserId', params);
+    this.$store.dispatch('getPosts', params);
   },
   computed: {
     ...mapState({
-      posts: state => get(state, 'post.postByUserId.result.posts', []),
-      statePostByUser: state => get(state, 'post.postByUserId'),
-      requestigGetPost: state => get(state, 'post.postByUserId.requesting'),
+      posts: state => get(state, 'post.post.result.posts', []) || [],
+      statePosts: state => get(state, 'post.post'),
+      requestigGetPost: state => get(state, 'post.post.requesting'),
     }),
     userInfor() {
       // eslint-disable-next-line vue/no-side-effects-in-computed-properties
@@ -100,21 +102,19 @@ export default {
   },
   methods: {
     loadMore() {
-      if (get(this.statePostByUser, 'result.page') >= get(this.statePostByUser, 'result.lastPage'))
-        return;
-      const params = {
-        id: this.userInfor.id,
-        page: get(this.statePostByUser, 'result.page') + 1,
-      };
+      if (get(this.statePosts, 'result.page') >= get(this.statePosts, 'result.lastPage')) return;
       if (this.requestigGetPost) return;
-      this.$store.dispatch('getPostByUserId', params);
+      const params = {
+        page: get(this.statePosts, 'result.page', 1) + 1,
+      };
+      this.$store.dispatch('getPosts', params);
     },
     handleFavorite(postId) {
-      if (this.favorites.includes(postId)) {
-        this.favorites.splice(this.favorites.indexOf(postId), 1);
-      } else {
-        this.favorites.push(postId);
-      }
+      const params = {
+        user_id: this.userInfor.id,
+        post_id: postId,
+      };
+      this.$store.dispatch('favorite', params);
     },
   },
 };

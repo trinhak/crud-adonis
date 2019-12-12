@@ -10,4 +10,10 @@ export default class Post {
   static getPostByUserId(params) {
     return http.get(`/posts/get-post-by-userId?id=${params.id}&page=${params.page}`);
   }
+  static getAllPost(page) {
+    return http.get(`/posts/get-post?page=${page}`);
+  }
+  static deletePost(params) {
+    return http.delete(`/posts/delete-post?id=${params.postId}&userId=${params.userId}`);
+  }
 }

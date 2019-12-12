@@ -12,4 +12,7 @@ export default class User {
   static logoutAccount(body = {}) {
     return http.post('/users/signout', body);
   }
+  static loginSocail(body = {}) {
+    return http.post('/users/login/social', body);
+  }
 }

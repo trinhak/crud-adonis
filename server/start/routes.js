@@ -28,6 +28,7 @@ Route.group(() => {
   Route.post('create', 'UserController.create')
   Route.post('login', 'UserController.login')
   Route.post('signout', 'UserController.signout').middleware(['auth'])
+  Route.post('login/social', 'UserController.loginSocial')
 }).prefix('users')
 
 Route.group(() => {
@@ -39,5 +40,7 @@ Route.group(() => {
   Route.get('categories', 'PostController.getCategories')
   Route.post('create', 'PostController.create')
   Route.get('get-post-by-userId/:id?/:page?', 'PostController.getPostByUserId')
+  Route.get('get-post/:page?', 'PostController.getAllPost')
+  Route.delete('delete-post/:id?/:userId?', 'PostController.deletePost')
 }).prefix('posts')
   .middleware(['auth'])

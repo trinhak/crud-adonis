@@ -35,7 +35,7 @@
             <img src="https://cdn.vuetifyjs.com/images/john.jpg" alt="John" />
           </v-avatar>
           <div>
-            <p class="ma-0">{{ inforUser.username }}</p>
+            <p class="ma-0">{{ inforUser.user_name }}</p>
             <p>{{ inforUser.email }}</p>
           </div>
         </div>
@@ -80,7 +80,15 @@
               ></v-text-field>
             </v-container>
           </v-form>
-
+          <facebook-login
+            class="button"
+            appId="809445012885813"
+            @login="getUserData"
+            @logout="logout"
+            @get-initial-status="getUserData"
+            ref="facebook"
+          >
+          </facebook-login>
           <v-divider></v-divider>
 
           <v-card-actions>
@@ -134,7 +142,6 @@
               ></v-text-field>
             </v-container>
           </v-form>
-
           <v-divider></v-divider>
 
           <v-card-actions>
@@ -180,10 +187,14 @@
 <script>
 import { mapState, mapGetters } from 'vuex';
 import { get, isEqual, cloneDeep } from 'lodash';
+import facebookLogin from 'facebook-login-vuejs';
 
 import { AuthStorage } from './services/storage';
 
 export default {
+  components: {
+    facebookLogin,
+  },
   data() {
     return {
       valid: false,
@@ -273,6 +284,29 @@ export default {
     logout() {
       this.$store.dispatch('logout');
     },
+    getUserData(data) {
+      // console.log('data', data);
+      const params = {
+        accessToken: get(data, 'response.authResponse.accessToken'),
+        typeSocial: 'facebook',
+      };
+      this.$store.dispatch('loginSocial', params).then(() => {
+        const status = get(this.$store, 'state.user.loginWithSocail.status');
+        if (status === 'success') {
+          this.isDialogLogin = false;
+          this.$router.push({
+            path: '/home',
+          });
+        }
+      });
+    },
+    onLogout(data) {
+      console.log('hehe', data);
+    },
+    // handleclick(data) {
+    //   this.$refs.facebook.logout();
+    //   console.log('****', this.$refs)
+    // }
   },
 };
 </script>
@@ -314,5 +348,8 @@ export default {
 .d {
   align-content: center;
   justify-content: center;
+}
+a:link {
+  text-decoration: none;
 }
 </style>

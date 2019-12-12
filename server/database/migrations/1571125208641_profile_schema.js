@@ -14,6 +14,7 @@ class ProfileSchema extends Schema {
       table.string('address', 200).nullable();
       table.string('city', 50).nullable();
       table.string('country', 50).nullable();
+      table.string('avatar', 400).nullable();
       table
         .integer('user_id')
         .unsigned()

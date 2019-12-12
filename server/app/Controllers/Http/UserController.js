@@ -67,6 +67,45 @@ class UserController {
       return response.status(400).json({ "error": error })
     }
   }
+
+  async loginSocial({ request, ally, response, auth }) {
+    try {
+      console.log('vo dayyyyyyyyyyy')
+      const { accessToken, typeSocial } = request.all();
+      console.log('accessToken', accessToken)
+      console.log('typeSocial', typeSocial)
+      const res = await ally.driver(typeSocial).getUserByToken(accessToken);
+      // console.log('res', res);
+      // const user = await User.findBy('email', res.getEmail())
+      // console.log('user', user)
+      // if (user) {
+      //   const userProfile = await User.query().with('profile').where('email', res.getEmail()).fetch();
+      //   let accessToken = await auth.generate(user)
+      //   return response.status(200).json({"user": userProfile, "access_token": accessToken});
+      // }
+      // // create user
+      const userDetails = {
+        email: res.getEmail(),
+        username: res.getName()
+      }
+      // const userCreate = auth.login(userDetail)
+      // console.log('userCreate', userCreate)
+      const whereClause = {
+        email: res.getEmail()
+      };
+      const user = await User.findOrCreate(whereClause, userDetails);
+      let profileData = await Profile.findBy('user_id', user.id);
+      if (!profileData) {
+        profileData = await user.profile().create({ user_name: res.getName(), avatar: res.getAvatar() })
+      }
+      const inforUser = await user.profile().fetch();
+      let token = await auth.generate(user)
+      Object.assign(user, token)
+      return response.status(200).json({"user": {inforUser, email: res.getEmail()}, "access_token": token });
+    } catch (error) {
+      console.log('error', error)
+    }
+  }
 }
 
 module.exports = UserController

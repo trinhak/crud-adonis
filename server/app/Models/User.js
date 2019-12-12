@@ -45,9 +45,9 @@ class User extends Model {
 
   posts () {
     return this.hasMany('App/Models/Post')
-  }
-  favorites () {
-    return this.belongsToMany('App/Models/Favorite')
+  } 
+  favorite () {
+    return this.belongsToMany('App/Models/Post').pivotTable('favorites')
   }
 }
 

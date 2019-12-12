@@ -15,6 +15,9 @@ import {
   LOGOUT_ACCOUNT_REQUEST,
   LOGOUT_ACCOUNT_SUCCESS,
   LOGOUT_ACCOUNT_FAIL,
+  LOGIN_WITH_SOCIAL_REQUEST,
+  LOGIN_WITH_SOCIAL_SUCCESS,
+  LOGIN_WITH_SOCIAL_FAIL,
 } from '../constants/mutationTypes';
 
 const state = {
@@ -31,6 +34,12 @@ const state = {
     error: null,
   },
   logout: {
+    requesting: false,
+    status: '',
+    result: null,
+    error: null,
+  },
+  loginWithSocail: {
     requesting: false,
     status: '',
     result: null,
@@ -54,7 +63,6 @@ const actions = {
     commit(LOGIN_ACCOUNT_REQUEST);
     try {
       const res = await User.loginAccount(params);
-      console.log(res);
       const userInfor = get(res, 'data.user');
       const data = {
         ...userInfor,
@@ -82,6 +90,26 @@ const actions = {
     } catch (error) {
       commit(LOGOUT_ACCOUNT_FAIL, { error: error });
       console.log('error', error);
+    }
+  },
+  async loginSocial({ state, commit }, params) {
+    commit(LOGIN_WITH_SOCIAL_REQUEST);
+    try {
+      const res = await User.loginSocail(params);
+      const userInfor = get(res, 'data.user');
+      const data = {
+        ...userInfor.inforUser,
+        email: userInfor.email,
+        access_token: get(res, 'data.access_token.token'),
+        type_token: get(res, 'data.access_token.type'),
+      };
+      const token = `${get(res, 'data.access_token.type')} ${get(res, 'data.access_token.token')}`;
+      await http.setAuthorizationHeader(token);
+      await AuthStorage.setAuth(JSON.stringify(data));
+      commit(LOGIN_WITH_SOCIAL_SUCCESS, res.data);
+    } catch (error) {
+      console.log('error', error);
+      commit(LOGIN_WITH_SOCIAL_FAIL, error);
     }
   },
 };
@@ -128,6 +156,20 @@ const mutations = {
     state.logout.requesting = false;
     state.logout.status = 'error';
     state.logout.error = payload;
+  },
+  [LOGIN_WITH_SOCIAL_REQUEST](state, payload) {
+    state.loginWithSocail.requesting = true;
+    state.loginWithSocail.status = '';
+  },
+  [LOGIN_WITH_SOCIAL_SUCCESS](state, payload) {
+    state.loginWithSocail.requesting = false;
+    state.loginWithSocail.status = 'success';
+    state.loginWithSocail.result = payload;
+  },
+  [LOGIN_WITH_SOCIAL_FAIL](state, payload) {
+    state.loginWithSocail.requesting = false;
+    state.loginWithSocail.status = 'error';
+    state.loginWithSocail.error = payload;
   },
 };
 
