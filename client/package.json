@@ -12,7 +12,7 @@
     "bootstrap": "^4.3.1",
     "core-js": "^2.6.5",
     "jquery": "^3.4.1",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.21",
     "popper.js": "^1.15.0",
     "serialize-error": "^5.0.0",
     "vee-validate": "^3.0.11",
